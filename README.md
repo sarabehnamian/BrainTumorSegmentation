@@ -4,7 +4,7 @@ This repository contains code for segmenting brain tumors from MRI scans.
 
 ## Directory Structure:
 
-- `models/`: Contains the trained model weights.
+- `models/`: Contains the trained model `best_model.h5`.
 - `outputs/`: Contains output visualizations and results.
 - `scripts/`: Contains the main Python scripts for data processing, model training, and evaluation.
 - `bash_scripts/`: Contains bash scripts for running the Python scripts.
