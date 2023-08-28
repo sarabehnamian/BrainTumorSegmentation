@@ -48,8 +48,7 @@ The dataset consists of MRI scans in the `.nii.gz` format, which is a standard f
    - Description: Compares the original MRI data with the augmented data. It visualizes side-by-side comparisons of original and augmented images and masks.
 
 ## Issues to Address:
-
-- Ensure that the MRI data is being correctly loaded and preprocessed.
+These are my next steps
 - If the model isn't performing well, consider adjusting hyperparameters or checking the training data.
 - Ensure that the segmentations make sense. If the masks are consistently blank, there might be an issue with the ground truth data or model predictions.
 - Ensure that the augmentations are appropriate and not overly distorting the data.
