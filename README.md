@@ -1,62 +1,79 @@
-# Brain Tumor Segmentation
+# Improvements to `Brain_Segmentation.py`
 
-This repository contains code for segmenting brain tumors from MRI scans.
+In our pursuit to enhance the U-Net model's performance for brain MRI segmentation, we've introduced several modifications. These changes are aimed at addressing potential overfitting, ensuring better convergence, and enhancing segmentation accuracy.
 
-## Directory Structure:
+## Table of Contents
 
-- `model/`: Contains the trained model `best_model.h5`.
-- `outputs/`: Contains output visualizations and results.
-- `scripts/`: Contains the main Python scripts for data processing, model training, and evaluation.
-- `bash_scripts/`: Contains bash scripts for running the Python scripts.
+- [Batch Normalization](#batch-normalization)
+- [Dropout Layers](#dropout-layers)
+- [Modified Loss Function](#modified-loss-function)
+- [Deeper U-Net Architecture](#deeper-u-net-architecture)
 
-## Dataset Information
+## Batch Normalization
 
-The dataset we are using is from the [Medical Segmentation Decathlon](http://medicaldecathlon.com/), specifically the Brain Tumours dataset.
+### What
+Added `BatchNormalization()` layers after each convolutional layer in the U-Net architecture.
 
-The dataset consists of MRI scans in the `.nii.gz` format, which is a standard format for storing medical imaging data. Our goal is to preprocess this data, build and train an autoencoder, and then use the trained model for segmentation tasks.
+### Why
+Batch normalization can improve the training process by reducing internal covariate shift. It normalizes the activations of each layer, which can lead to faster convergence and improved generalization.
 
-### Dataset Structure:
+## Dropout Layers
 
-- **imagesTr**: This directory contains the training images. These are the MRI scans that you will use to train your models.
-- **imagesTs**: This directory contains the test images. These are the MRI scans that you can use to evaluate the performance of your models after training.
-- **labelsTr**: This directory contains the ground truth labels (segmentations) corresponding to the training images in imagesTr. These labels indicate the regions in the MRI scans where tumors are present. They will be used as the "target" when training segmentation models.
-- **dataset.json**: This file likely contains metadata about the dataset, such as details about the image acquisition, annotations, and other relevant information.
+### What
+Introduced `Dropout()` layers in the U-Net architecture.
 
+### Why
+Dropout is a regularization technique that helps prevent overfitting. By randomly setting a fraction of input units to 0 at each update during training, it forces the network to learn redundant representations, making it more robust.
 
-## Steps:
+## Modified Loss Function
 
-1. **Brain Segmentation**: 
-   - Script: `scripts/Brain_Segmentation.py`
-   - Bash Script: `bash_scripts/run_Brain_Segmentation.sh`
-   - Description: This script is responsible for training a U-Net model on brain MRI data for segmentation tasks. It loads the MRI data, defines the U-Net model, trains it, and saves the results. Key functions include `normalize_image()`, `load_data()`, and `create_unet_model()`.
+### What
+Introduced a combined loss function that merges binary cross-entropy and the Dice coefficient.
 
-2. **U-Net Evaluation**: 
-   - Script: `scripts/unet_evaluation.py`
-   - Bash Script: `bash_scripts/run_unet_evaluation.sh`
-   - Description: Evaluates the performance of the trained U-Net model on validation data. It loads the trained model, generates predictions for the validation set, and computes metrics like Dice Coefficient and IoU.
+### Why
+The Dice coefficient is a metric that measures the overlap between the predicted segmentation and the ground truth. By using it as a loss function, we directly optimize for the quality of the segmentation. Combining it with binary cross-entropy ensures that the model also focuses on classifying each voxel correctly.
 
-3. **Analysis and Visualization**: 
-   - Script: `scripts/AnalysisandVisualization.py`
-   - Description: This script provides visual insights into the model's learning process. It overlays the predicted segmentations on the original images, computes error maps, and plots training curves to understand the model's learning trajectory.
+## Deeper U-Net Architecture
 
-4. **Data Augmentation**: 
-   - Script: `scripts/augmantation.py`
-   - Description: Augments the MRI data to create more diverse training samples. It defines a sequence of augmentations and applies them to the MRI data.
+### What
+Enhanced the depth of the U-Net model by adding more convolutional layers.
 
-5. **Augmentation Comparison**: 
-   - Script: `scripts/augmantation_comparison.py`
-   - Description: Compares the original MRI data with the augmented data. It visualizes side-by-side comparisons of original and augmented images and masks.
+### Why
+A deeper network can capture more complex features from the MRI data. However, it's essential to balance the depth with the risk of overfitting, which is why dropout and batch normalization were also added.
 
-## Issues to Address:
-These are my next steps
-- If the model isn't performing well, consider adjusting hyperparameters or checking the training data.
-- Ensure that the segmentations make sense. If the masks are consistently blank, there might be an issue with the ground truth data or model predictions.
-- Ensure that the augmentations are appropriate and not overly distorting the data.
-- Ensure that visualizations are correctly overlaying segmentations on the original images.
+---
 
-## Future Work:
+## Code Changes
 
-- Correct the issues mentioned above.
-- Fine-tune the model for better performance.
-- Incorporate more advanced augmentation techniques.
+Here's a snippet of the changes made to the `Brain_Segmentation.py`:
 
+```python
+from tensorflow.keras.layers import BatchNormalization, Dropout
+from tensorflow.keras.losses import binary_crossentropy
+
+# New Dice Loss Function
+def dice_loss(y_true, y_pred):
+    ...
+
+# Combined Loss (Dice + Binary Cross Entropy)
+def combined_loss(y_true, y_pred):
+    ...
+
+# Modified U-Net with BatchNormalization and Dropout
+def create_unet_model():
+    ...
+    c1 = BatchNormalization()(c1)
+    c1 = Dropout(0.2)(c1)
+    ...
+    c2 = BatchNormalization()(c2)
+    c2 = Dropout(0.2)(c2)
+    ...
+    c3 = BatchNormalization()(c3)
+    c3 = Dropout(0.3)(c3)
+    ...
+    c4 = BatchNormalization()(c4)
+    c4 = Dropout(0.2)(c4)
+    ...
+    c5 = BatchNormalization()(c5)
+    c5 = Dropout(0.2)(c5)
+    ...
